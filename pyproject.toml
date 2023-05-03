@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "centopy"
+version = "0.1.0"
+description = "Python package for managing file creation and loading"
+authors = ["Vagner Bessa"]
+license = "None"
+readme = "README.md"
+packages = [{include = "centopy", from = "src"}]
+include = [
+	{path = "src/app.py"},
+	{path = "src/cli.py"},
+	{path = "src/gui.py"},
+	{path = "src/settings.py"}
+]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+[tool.poetry.scripts]
+centopy = "centopy.__main__:main"
