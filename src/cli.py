@@ -1,35 +1,41 @@
-"""
-    This modules provide a class to manage the CLI
-    The package's entry point is centopy.
-
-    To understand more how to implement this module
-    check:
-     - 
-"""
-import logging
-
 import click
+from apps import Files
 
-from centopy import HEADER
-from app import MyApp
+@click.group()
+@click.argument("directory", required=True)
+@click.pass_context
+def cli(ctx, directory):
+    ctx.obj = Files(directory)
 
-logger_client = logging.getLogger('client')
+@cli.command()
+@click.pass_context
+def list_files(ctx):
+    files = ctx.obj.run("list_files")
+    click.echo("\n".join(files))
 
+@cli.command()
+@click.pass_context
+@click.argument("file_name")
+@click.option("--encoding", default="utf-8")
+def load(ctx, file_name, encoding):
+    contents = ctx.obj.run("load_file", file_name, encoding=encoding)
+    click.echo(contents)
 
-class CLI:
-    def __init__(self,):
-        self.app = None
+@cli.command()
+@click.argument("file_name")
+@click.argument("file_contents")
+@click.option("--encoding", default="utf-8")
+@click.pass_context
+def save(ctx, file_name, file_contents, encoding):
+    ctx.obj.run("save_file", file_name, file_contents, encoding=encoding)
+    click.echo(f"Saved {file_name}")
 
-    def start(self, arg=None):
-        click.echo(HEADER)
-        self.app = MyApp(arg)
-        self.app.run()
+@cli.command()
+@click.argument("file_name")
+@click.pass_context
+def delete(ctx, file_name):
+    ctx.obj.run("delete_file", file_name)
+    click.echo(f"Deleted {file_name}")
 
-@click.command()
-@click.option('--arg',
-              default=None,
-              required=False,
-              help='Argument to MyApp')
-def start_program(arg=None):
-    program = CLI()
-    program.start(arg)
+if __name__ == "__main__":
+    cli()    

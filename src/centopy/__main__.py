@@ -8,13 +8,13 @@
 import logging
 from logging import NullHandler
 
-from cli import start_program
+from cli import cli
 
 # Set default logging handler to avoid \"No handler found\" warnings.
 logging.getLogger(__name__).addHandler(NullHandler())
 
 def main():
-    start_program()
+    cli()
 
 if __name__ == '__main__':
     main()

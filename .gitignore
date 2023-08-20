@@ -1,1 +1,11 @@
+# environments
 .env/
+.venv/
+
+# dev
+desktop/
+.vscode/
+__pycache__
+
+# logs
+*.log

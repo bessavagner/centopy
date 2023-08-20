@@ -4,7 +4,6 @@
 """
 
 from importlib import metadata
-from pathlib import Path
 
 
 package = metadata.metadata('centopy')
@@ -29,63 +28,90 @@ Authors: {author}
 CONFIG_LOG = {
     "version": 1,
     "formatters": {
-        "client": {
-            "format": "%(levelname)s: %(message)s"
-        },
+        "client": {"format": "%(levelname)s: %(message)s"},
         "standard": {
-            "format": "%(levelname)s - function: (%(name)s at %(funcName)s line %(lineno)d): %(message)s"
+            "format": (
+                "%(levelname)s (at %(module)s.%(funcName)s"
+                " in line %(lineno)d): %(message)s"
+            )
+        },
+        "debug": {
+            "format": (
+                "%(levelname)s (at %(module)s.%(funcName)s"
+                " in line %(lineno)d):"
+                "\n\t|──file: %(pathname)s"
+                "\n\t|──process: %(process)d | name: %(processName)s"
+                "\n\t|──thread: %(thread)d | name: %(threadName)s"
+                "\n\t└──message: %(message)s\n"
+            ),
         },
         "file": {
-            "format": "%(levelname)s - function: (%(name)s at %(funcName)s line %(lineno)d): %(message)s",
-            "datefmt": "%y-%m-%d %H:%M:%S"
-        }
+            "format": (
+                "%(levelname)s %(asctime)s (at %(module)s.%(funcName)s"
+                " in line %(lineno)d): %(message)s"
+                "\n\t|──file: %(pathname)s\n\t"
+                "\n\t|──process: %(process)d | name: %(processName)s"
+                "\n\t|──thread: %(thread)d | name: %(threadName)s\n"
+                "\n\t└──message: %(message)s\n"
+            ),
+            "datefmt": "%y-%m-%d %H:%M:%S",
+        },
     },
     "handlers": {
         "client": {
             "class": "logging.StreamHandler",
             "formatter": "client",
-            "level": "INFO"
+            "level": "INFO",
         },
         "standard": {
             "class": "logging.StreamHandler",
             "formatter": "standard",
-            "level": "DEBUG"
+            "level": "DEBUG",
+        },
+        "debug": {
+            "class": "logging.StreamHandler",
+            "formatter": "debug",
+            "level": "DEBUG",
         },
         "file": {
             "class": "logging.FileHandler",
             "formatter": "file",
             "level": "DEBUG",
             "filename": "report.log",
-            "encoding": "utf8"
-        }
+            "encoding": "utf8",
+        },
     },
-    "root": {
-        "handlers": [
-            "standard"
-        ],
-        "level": "DEBUG"
-    },
+    "root": {"handlers": ["standard"], "level": "DEBUG"},
     "loggers": {
         "client": {
-            "handlers": [
-                "client"
-            ],
+            "handlers": ["client"],
             "level": "DEBUG",
-            "propagate": False
+            "propagate": False,
+            "disable_existing_loggers": False
         },
         "standard": {
-            "handlers": [
-                "standard"
-            ],
+            "handlers": ["standard"],
             "level": "DEBUG",
-            "propagate": False
+            "propagate": False,
+            "disable_existing_loggers": False
+        },
+        "debugger": {
+            "handlers": ["debug"],
+            "level": "DEBUG",
+            "propagate": False,
+            "disable_existing_loggers": False
         },
         "report": {
-            "handlers": [
-                "file"
-            ],
+            "handlers": ["file"],
             "level": "DEBUG",
-            "propagate": False
-        }
-    }
+            "propagate": False,
+            "disable_existing_loggers": False
+        },
+        "report_debugger": {
+            "handlers": ["file", "debug"],
+            "level": "DEBUG",
+            "propagate": False,
+            "disable_existing_loggers": False
+        },
+    },
 }
