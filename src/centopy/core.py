@@ -239,6 +239,18 @@ class Compressor:
                  filename: str,
                  wdir: str = '',
                  extension: str = 'zip') -> None:
+        """
+        Initialize the Compressor object.
+
+        Parameters
+        ----------
+        filename : str
+            The base filename for the compressed archive.
+        wdir : str, optional
+            The working directory path where the archive will be managed, by default ''.
+        extension : str, optional
+            The extension for the compressed archive, by default 'zip'.
+        """
         self.extension = extension
         self.filename = f"{filename}.{self.extension}"
         self.manager = FilesManager(wdir)
@@ -249,15 +261,43 @@ class Compressor:
                 pass
 
     def path(self,):
+        """
+        Get the full path to the compressed archive file.
+
+        Returns
+        -------
+        Path
+            The full path to the compressed archive file.
+        """
         return self.manager.folder_path / self.file_path
 
     def namelist(self,):
+        """
+        Get a list of filenames present in the compressed archive.
+
+        Returns
+        -------
+        List[str]
+            A list of filenames present in the compressed archive.
+        """
         if self.file_path.name in self.manager.list_files():
             with zipfile.ZipFile(self.file_path, mode="r") as archive:
                 return [Path(name).name for name in archive.namelist()]
         return []
 
     def add(self, filename: str, delete_source=True, mode='a') -> None:
+        """
+        Add a file to the compressed archive.
+
+        Parameters
+        ----------
+        filename : str
+            The name of the file to be added.
+        delete_source : bool, optional
+            If True, delete the source file after adding, by default True.
+        mode : str, optional
+            The mode to open the compressed archive, by default 'a'.
+        """
         if filename in self.manager.list_files():
             with zipfile.ZipFile(self.file_path, mode=mode) as archive:
                 archive.write(self.manager.file_path(filename), filename)
@@ -271,17 +311,63 @@ class Compressor:
                 self.manager.folder_path
             )
 
-    def write(self, filename: str, content: str, delete_source=True, mode='a') -> None:
+    def write(self,
+              filename: str,
+              content: str,
+              delete_source=True,
+              mode='a') -> None:
+        """
+        Write content to a new file and add it to the compressed archive.
+
+        Parameters
+        ----------
+        filename : str
+            The name of the file to be written and added.
+        content : str
+            The content to be written to the new file.
+        delete_source : bool, optional
+            If True, delete the source file after adding, by default True.
+        mode : str, optional
+            The mode to open the compressed archive, by default 'a'.
+        """
         self.manager.write(filename, content)
         self.add(filename, delete_source=delete_source, mode=mode)
 
-    def writeb(self, filename: str, content: bytes, delete_source=True, mode='a') -> None:
+    def writeb(self,
+               filename: str,
+               content: bytes,
+               delete_source=True,
+               mode='a') -> None:
+        """
+        Write bytes content to a new file and add it to the compressed archive.
+
+        Parameters
+        ----------
+        filename : str
+            The name of the file to be written and added.
+        content : bytes
+            The bytes content to be written to the new file.
+        delete_source : bool, optional
+            If True, delete the source file after adding, by default True.
+        mode : str, optional
+            The mode to open the compressed archive, by default 'a'.
+        """
         self.manager.writeb(filename, content)
         self.add(filename, delete_source=delete_source, mode=mode)
 
     def append(self, filename: str, content: str) -> None:
+        """
+        Append content to an existing text file within the compressed archive.
+
+        Parameters
+        ----------
+        filename : str
+            The name of the file to which content will be appended.
+        content : str
+            The content to be appended to the existing text file.
+        """
         data = self.read(filename)
-        if filename in self.manager.list_files():
+        if filename in self.namelist():
             with zipfile.ZipFile(self.file_path, mode="w") as archive:
                 with archive.open(self.members[filename], mode='w') as member:
                     data += content
@@ -294,8 +380,19 @@ class Compressor:
             )
 
     def appendb(self, filename: str, content: bytes) -> None:
+        """
+        Append content to an existing binary file within the compressed
+        archive.
+
+        Parameters
+        ----------
+        filename : str
+            The name of the file to which content will be appended.
+        content : bytes
+            The bytes content to be appended to the existing binary file.
+        """
         data = self.read(filename, as_text=False)
-        if filename in self.manager.list_files():
+        if filename in self.namelist():
             with zipfile.ZipFile(self.file_path, mode="w") as archive:
                 with archive.open(self.members[filename], mode='w') as member:
                     data += content
@@ -308,6 +405,21 @@ class Compressor:
             )
 
     def read(self, filename: str, as_text=True) -> str | bytes:
+        """
+        Read the content of a file within the compressed archive.
+
+        Parameters
+        ----------
+        filename : str
+            The name of the file to be read.
+        as_text : bool, optional
+            If True, return content as text, otherwise as bytes, by default True.
+
+        Returns
+        -------
+        str or bytes
+            The content of the specified file.
+        """
         with zipfile.ZipFile(self.file_path, mode="r") as archive:
             with archive.open(self.members[filename], mode='r') as member:
                 data = member.read()
@@ -316,6 +428,20 @@ class Compressor:
                 return data
 
     def extract(self, filename: str) -> str:
+        """
+        Extract a file from the compressed archive to the working directory.
+
+        Parameters
+        ----------
+        filename : str
+            The name of the file to be extracted.
+
+        Returns
+        -------
+        str
+            The path to the extracted file in the working directory.
+        """
+
         with zipfile.ZipFile(self.file_path, mode="r") as archive:
             return archive.extract(
                 self.members[filename],
