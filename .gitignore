@@ -3,9 +3,13 @@
 .venv/
 
 # dev
-desktop/
 .vscode/
-__pycache__
+__pycache__/
+desktop/
+dist/
+
+# tests
+*.ipynb
 
 # logs
 *.log
