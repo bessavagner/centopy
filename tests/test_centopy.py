@@ -239,28 +239,52 @@ class TestCompressor(unittest.TestCase):
         self.assertEqual(read_content, content)
 
     def test_append(self):
-        file_name = 'test_append.txt'
-        content1 = 'First binary line\n'
-        content2 = 'Second binary line\n'
         
-        self.compressor.write(file_name, content1, delete_source=False)
-        self.compressor.append(file_name, content2)
+        file_name1 = 'test_keep.txt'
+        file_name2 = 'test_append.txt'
+        content1 = 'This line should remain\n'
+        content2_1 = 'First binary line\n'
+        content2_2 = 'Second binary line\n'
+        
+        self.compressor.write(file_name1, content1)
+        self.compressor.write(file_name2, content2_1)
+        
+        name_list_before = self.compressor.namelist()
+        
+        self.compressor.append(file_name2, content2_2)
                 
-        read_content = self.compressor.read(file_name, as_text=True)
-        expected_content = content1 + content2
+        read_content = self.compressor.read(file_name2, as_text=True)
+        expected_content = content2_1 + content2_2
+        
+        name_list_after = self.compressor.namelist()
+        
         self.assertEqual(read_content, expected_content)
+        for member in name_list_before:
+            self.assertIn(member, name_list_after)
 
     def test_appendb(self):
-        file_name = 'test_appendb.txt'
-        content1 = b'First binary line\n'
-        content2 = b'Second binary line\n'
         
-        self.compressor.writeb(file_name, content1, delete_source=False)
-        self.compressor.appendb(file_name, content2)
+        file_name1 = 'test_keep.bin'
+        file_name2 = 'test_append.bin'
+        content1 = b'This line should remain\n'
+        content2_1 = b'First binary line\n'
+        content2_2 = b'Second binary line\n'
+        
+        self.compressor.writeb(file_name1, content1)
+        self.compressor.writeb(file_name2, content2_1)
+        
+        name_list_before = self.compressor.namelist()
+        
+        self.compressor.appendb(file_name2, content2_2)
                 
-        read_content = self.compressor.read(file_name, as_text=False)
-        expected_content = content1 + content2
+        read_content = self.compressor.readb(file_name2)
+        expected_content = content2_1 + content2_2
+        
+        name_list_after = self.compressor.namelist()
+        
         self.assertEqual(read_content, expected_content)
+        for member in name_list_before:
+            self.assertIn(member, name_list_after)
 
 if __name__ == "__main__":
     unittest.main()
