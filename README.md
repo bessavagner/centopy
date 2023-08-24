@@ -82,26 +82,33 @@ if loaded_contents is None:
 
 ### Compressor:
 
-This API helps handling compressed files.
+The class `centopy.Compressor` is an api to the `zipfile.ZipFile` context manager. You can use a custom extension when instantiating.
 
 #### Writing and appending files
 
 ```python
-from centopy import Compressor
+archive = centopy.Compressor('file', extension='customzip', wdir='data')
+```
 
-# Create a Compressor object
-compressor = Compressor("my_archive")
+An object `centopy.Compressor` has a attribute as an instance of `centopy.FilesManager`.
 
-# Write text content to a new file and add it to the archive
-compressor.write("data.txt", "Hello, this is a new file!")
+```python
+print(archive.manager.list_files())
+```
+```bash
+['file.customzip', 'data.bin', 'hello.txt']
+```
 
-# Append content to an existing file in the archive
-compressor.append("data.txt", "\nAdditional data appended.")
+```Python
+content = 'Hello, centopy!'
+archive.write('hello.txt', content=content)
 
-# Read the content of a file from the archive
-file_content = compressor.read("data.txt")
+# list files inside archive
+print(archive.namelist())
+```
 
-print("Appended content:", file_content)
+```bash
+['hello.txt']
 ```
 
 #### Binary Data Compression
