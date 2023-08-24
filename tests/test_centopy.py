@@ -286,5 +286,25 @@ class TestCompressor(unittest.TestCase):
         for member in name_list_before:
             self.assertIn(member, name_list_after)
 
+    def test_update(self,):
+
+        file_name = 'text_to_update.txt'
+        path = self.compressor.manager.folder_path / file_name
+        content = "This will be overwritten"
+        updated_content = "\nUpdated content"
+
+        self.compressor.write(file_name, content)
+        
+        with open(path, 'w', encoding='utf-8') as file_:
+            file_.write(updated_content)
+        
+        self.compressor.update(file_name, delete_source=True)
+        
+        updated_content_read = self.compressor.read(file_name)
+        
+        self.assertEqual(updated_content_read, updated_content)
+        self.assertNotIn(content, updated_content_read)
+        self.assertNotIn(file_name, self.compressor.manager.list_files())
+
 if __name__ == "__main__":
     unittest.main()

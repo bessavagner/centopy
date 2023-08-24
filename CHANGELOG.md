@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.2.3 (24/08/2023)
+
+- Feat(centopy.Compressor): add update operation.
+
 ## v0.2.2 (24/08/2023)
 
 - Fix(centopy.Compressor): append functions kept temporally files structure inside zipfile.

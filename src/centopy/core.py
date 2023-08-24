@@ -311,7 +311,7 @@ class Compressor:
             with zipfile.ZipFile(self.file_path, mode=mode) as archive:
                 archive.write(self.manager.file_path(filename), filename)
                 if delete_source:
-                    self.manager.delete_file(self.manager.file_path(filename))
+                    self.manager.delete_file(filename)
                 self.members[filename] = archive.namelist()[-1]
         else:
             logger.warning(
@@ -536,6 +536,18 @@ class Compressor:
             if member != filename:
                 self.extract(member, path=temp_dir)
         self.clean()
+        for member in temp_dir.glob('**/*'):
+            self.add_from(member)
+        if temp_dir.exists():
+            shutil.rmtree(temp_dir)
+
+    def update(self, filename: str, delete_source=False):
+        temp_dir = Path(tempfile.mkdtemp())
+        for member in self.namelist():
+            if member != filename:
+                self.extract(member, path=temp_dir)
+        self.clean()
+        self.add(filename, delete_source=delete_source, mode='w')
         for member in temp_dir.glob('**/*'):
             self.add_from(member)
         if temp_dir.exists():
