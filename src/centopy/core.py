@@ -552,3 +552,15 @@ class Compressor:
             self.add_from(member)
         if temp_dir.exists():
             shutil.rmtree(temp_dir)
+
+    def update_from(self, filename: str, delete_source=False):
+        temp_dir = Path(tempfile.mkdtemp())
+        for member in self.namelist():
+            if member != filename:
+                self.extract(member, path=temp_dir)
+        self.clean()
+        self.add_from(filename, delete_source=delete_source, mode='w')
+        for member in temp_dir.glob('**/*'):
+            self.add_from(member)
+        if temp_dir.exists():
+            shutil.rmtree(temp_dir)
