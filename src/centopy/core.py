@@ -263,8 +263,11 @@ class Compressor:
         self.file_path = self.manager.folder_path / self.filename
         self.members = {}
         if self.file_path.name not in self.manager.list_files():
-            with zipfile.ZipFile(self.file_path, mode="w") as _:
-                pass
+            self.clean()
+
+    def clean(self,):
+        with zipfile.ZipFile(self.file_path, mode="w") as _:
+            pass
 
     def path(self,):
         """
@@ -333,7 +336,7 @@ class Compressor:
         file_path = Path(filename)
         if file_path.exists():
             with zipfile.ZipFile(self.file_path, mode=mode) as archive:
-                archive.write(file_path, filename)
+                archive.write(file_path, file_path.name)
                 if delete_source:
                     if file_path.exists():
                         os.remove(file_path)
@@ -526,3 +529,14 @@ class Compressor:
                 self.members[filename],
                 path=path
             )
+
+    def remove(self, filename: str):
+        temp_dir = Path(tempfile.mkdtemp())
+        for member in self.namelist():
+            if member != filename:
+                self.extract(member, path=temp_dir)
+        self.clean()
+        for member in temp_dir.glob('**/*'):
+            self.add_from(member)
+        if temp_dir.exists():
+            shutil.rmtree(temp_dir)
