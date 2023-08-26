@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "centopy"
-version = "0.2.4"
+version = "0.2.5"
 description = "Python package for managing file creation and loading"
 authors = ["Vagner Bessa <bessavagner@gmail.com>"]
 license = "None"

@@ -175,13 +175,23 @@ class TestCompressor(unittest.TestCase):
 
     def setUp(self):
         self.temp_dir =  tempfile.mkdtemp()
-        self.compressor = Compressor('test', wdir=self.temp_dir)
+        self.archive_name = 'test'
+        self.archive_ext = 'testext'
+        self.compressor = Compressor(
+            self.archive_name, wdir=self.temp_dir, extension=self.archive_ext
+        )
 
     def tearDown(self):
         shutil.rmtree(self.temp_dir)
 
     def test_init(self):
         self.assertTrue(self.compressor.path().exists())
+
+    def test_name_and_extension(self,):
+        self.assertEqual(
+            self.compressor.path().name.split('.')[0], self.archive_name
+        )
+        self.assertEqual(self.compressor.path().suffix[1:], self.archive_ext)
 
     def test_namelist_non_existing_file(self):
         names = self.compressor.namelist()
@@ -305,6 +315,29 @@ class TestCompressor(unittest.TestCase):
         self.assertEqual(updated_content_read, updated_content)
         self.assertNotIn(content, updated_content_read)
         self.assertNotIn(file_name, self.compressor.manager.list_files())
+
+    def tes_load_existing(self,):
+        
+        file_name1 = 'test_text.txt'
+        file_name2 = 'test_bin.bin'
+        content_1 = 'Text line\n'
+        content_2 = b'Binary line\n'
+        
+        self.compressor.write(file_name1, content_1)
+        self.compressor.writeb(file_name2, content_2)
+
+        redundant = Compressor(
+            self.archive_name, wdir=self.temp_dir, extension=self.archive_ext
+        )
+
+        self.assertIn(file_name1, redundant.namelist())
+        self.assertIn(file_name2, redundant.namelist())
+                
+        read_content_1 = redundant.read(file_name1)
+        read_content_2 = redundant.readb(file_name2)
+        
+        self.assertEqual(content_1, read_content_1)
+        self.assertEqual(content_2, read_content_2)
 
 if __name__ == "__main__":
     unittest.main()

@@ -2,6 +2,14 @@
 
 <!--next-version-placeholder-->
 
+## v0.2.5 (26/08/2023)
+
+- Update(centopy.Compressor): load member list if existing archive.
+
+## v0.2.4 (25/08/2023)
+
+- update(centopy.Compressor): add update from method.
+
 ## v0.2.3 (24/08/2023)
 
 - Feat(centopy.Compressor): add update operation.

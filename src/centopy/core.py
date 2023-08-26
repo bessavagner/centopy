@@ -264,6 +264,10 @@ class Compressor:
         self.members = {}
         if self.file_path.name not in self.manager.list_files():
             self.clean()
+        else:
+            with zipfile.ZipFile(self.file_path, mode='r') as archive:
+                for name in archive.namelist():
+                    self.members[Path(name).name] = name
 
     def clean(self,):
         with zipfile.ZipFile(self.file_path, mode="w") as _:
