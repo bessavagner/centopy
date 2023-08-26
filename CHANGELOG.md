@@ -4,6 +4,10 @@
 
 ## v0.2.6 (26/08/2023)
 
+- Fix: move settings to package.
+
+## v0.2.6 (26/08/2023)
+
 - Feat(core): add archives operator (Archives class).
 
 ## v0.2.5 (26/08/2023)
