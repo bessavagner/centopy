@@ -2,13 +2,14 @@ import os
 import shutil
 import unittest
 import tempfile
-import zipfile
 
+from pathlib import Path
 from unittest.mock import patch
 
 from centopy.base import BaseFilesManager
 from centopy.core import FilesManager
 from centopy.core import Compressor
+from centopy.core import Archives
 
 
 class TestBaseFilesManager(unittest.TestCase):
@@ -338,6 +339,82 @@ class TestCompressor(unittest.TestCase):
         
         self.assertEqual(content_1, read_content_1)
         self.assertEqual(content_2, read_content_2)
+
+class TestArchives(unittest.TestCase):
+
+    def setUp(self):
+
+        # data
+        self.temp_dir = Path(tempfile.mkdtemp())
+        self.ext = 'customext'
+        self.archives = Archives(
+            extension=self.ext, archive_handler=Compressor
+        )
+
+    def tearDown(self):
+        if os.path.exists(self.temp_dir):
+            shutil.rmtree(self.temp_dir)
+
+    def test_wrong_archive_handler(self,):
+        with self.assertRaises(TypeError):
+            Archives(archive_handler=dict)
+
+    def test_new_archive(self, ):
+        
+        name = 'test_archive'
+        created = self.archives.new(name)
+        archive = self.archives[name]
+        
+        self.assertTrue(created)
+        self.assertIsInstance(archive, Compressor)
+        self.assertEqual(len(self.archives), 1)
+        self.assertEqual(self.ext, archive.extension)
+
+    def test_load_archive(self, ):
+        
+        name = 'test_archive'
+        self.archives.new(name, wdir=self.temp_dir)
+        
+        archives = Archives(extension=self.ext, archive_handler=Compressor)
+        archive = archives.load(name, wdir=self.temp_dir)
+
+        self.assertIsInstance(archive, Compressor)
+
+    def test_new_archive_existing_file(self,):
+        name = 'test_archive'
+        
+        created = self.archives.new(name, wdir=self.temp_dir)
+        self.assertTrue(created)
+
+        not_created = self.archives.new(
+            name, wdir=self.temp_dir, confirm_func=lambda _, __: False
+        )
+        self.assertFalse(not_created)
+
+    def test_index_error(self,):
+        name = 'non_existing_file.txt'
+        with self.assertRaises(TypeError):
+            _ = self.archives[1]
+        with self.assertRaises(KeyError):
+            _ = self.archives[name]
+
+    def test_iterating(self,):
+        names = ('a1', 'a2', 'a3')
+        self.assertTrue(hasattr(self.archives, '__iter__'))
+        for name in names:
+            self.archives.new(name, wdir=self.temp_dir)
+        for name, archive in zip(names, self.archives):
+            self.assertEqual(f"{name}.{'customext'}", archive.filename)
+            self.assertIsInstance(archive, Compressor)
+
+    def test_close(self,):
+        names = ('a1', 'a2', 'a3')
+        for name in names:
+            self.archives.new(name, wdir=self.temp_dir)
+        self.archives.close(names[0])
+        self.assertNotIn(names[0], self.archives)
+        self.archives.close_all()
+        self.assertEqual(0, len(self.archives))
 
 if __name__ == "__main__":
     unittest.main()

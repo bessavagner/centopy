@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.2.6 (26/08/2023)
+
+- Feat(core): add archives operator (Archives class).
+
 ## v0.2.5 (26/08/2023)
 
 - Update(centopy.Compressor): load member list if existing archive.

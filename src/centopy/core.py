@@ -10,6 +10,7 @@ import tempfile
 import shutil
 
 from pathlib import Path
+from typing import Type
 
 from .base import BaseFilesManager
 
@@ -568,3 +569,144 @@ class Compressor:
             self.add_from(member)
         if temp_dir.exists():
             shutil.rmtree(temp_dir)
+
+
+class Archives:
+    def __init__(self,
+                 extension: str = '.zip',
+                 archive_handler: Type[Compressor] = Compressor):
+        """
+        Initialize an Archives object.
+
+        Args:
+            extension (str, optional): Default extension for archive files.
+            Defaults to '.zip'.
+            archive_handler (Type[Compressor], optional): Archive handler
+            class. Defaults to Compressor.
+                Must be a subclass of centopy.Compressor.
+
+        Raises:
+            TypeError: If 'archive_handler' is not a subclass of
+            centopy.Compressor.
+        """
+        
+        if not issubclass(archive_handler, Compressor):
+            raise TypeError(
+                "'archive_handler' must be an instance of "
+                "centopy.Compressor or of its subsclass."
+            )
+        self._file = {}
+        self._extension = extension
+        self._archive_handler = archive_handler
+
+    def __len__(self,):
+        return len(self._file)
+    
+    def __getitem__(self, archive_name: str):
+        if not isinstance(archive_name, str):
+            raise TypeError('Archive indexes must be str')
+        if archive_name not in self._file:
+            raise KeyError(f"'{archive_name}' was not created or loaded")
+
+        return self._file[archive_name]
+
+    def __iter__(self,):
+        for archive_name in self._file.values():
+            yield archive_name
+        return
+
+    def __repr__(self,):
+        names = ",".join(name for name in self)
+        text = f"Opened archives: {len(self)}\n"
+        text += f"Archives list: {names}\n"
+        return text
+
+    def new(self,
+            filename: str,
+            wdir='',
+            confirm_func: callable = lambda _, __: True):
+        """
+        Create a new archive and add it to the collection.
+
+        Args:
+            filename (str): Name of the archive.
+            wdir (str, optional): Working directory. Defaults to
+            current directory.
+            confirm_func (callable, optional): Confirmation function to check
+            if the archive can be created. Defaults to always return True.
+
+        Returns:
+            bool: True if the archive was created, False otherwise.
+        """
+        proceed = True
+        path = Path(wdir) / Path(f'{filename}.{self._extension}')
+        if path.exists():
+            proceed = confirm_func(filename, wdir)
+        if proceed:
+            archive = self._archive_handler(
+                filename, wdir, extension=self._extension
+            )
+            archive.clean()
+            self._file[filename] = archive
+            return True
+        return False
+
+    def load(self, filename: str, wdir='') -> Type[Compressor]:
+        """
+        Load an existing archive and add it to the collection.
+
+        Args:
+            filename (str): Name of the archive.
+            wdir (str, optional): Working directory. Defaults to
+            current directory.
+
+        Returns:
+            Type[Compressor]: The loaded archive object.
+        
+        Raises:
+            FileNotFoundError: If the specified archive file doesn't exist.
+        """
+
+        path = Path(wdir) / Path(f'{filename}.{self._extension}')
+
+        if not path.exists():
+            raise FileNotFoundError
+
+        self._file[filename] = self._archive_handler(
+            filename, wdir, extension=self._extension
+        )
+
+        return self._file[filename]
+
+    def close(self, archive_name: str):
+        """
+        Close and remove an archive from the collection.
+
+        Args:
+            archive_name (str): Name of the archive to close.
+
+        Returns:
+            None
+        """
+        closed = self._file.pop(archive_name, None)
+        if closed is None:
+            logger.warning(
+                "'%s' was not created or loaded. "
+                "Nothing to close",
+                archive_name
+            )
+            return
+        del closed
+
+    def close_all(self, ):
+        """
+        Close and remove all archives from the collection.
+
+        Returns:
+            None
+        """
+        keys = tuple(self._file.keys())
+        for archive_name in keys:
+            closed = self._file.pop(archive_name, None)
+            if closed is not None:
+                del closed
