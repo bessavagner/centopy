@@ -1,16 +1,14 @@
 [tool.poetry]
 name = "centopy"
-version = "0.2.9"
+version = "0.2.10"
 description = "Python package for managing file creation and loading"
 authors = ["Vagner Bessa <bessavagner@gmail.com>"]
 license = "None"
 readme = "README.md"
 packages = [{include = "centopy", from = "src"}]
 include = [
-	{path = "src/app.py"},
+	{path = "src/apps.py"},
 	{path = "src/cli.py"},
-	{path = "src/gui.py"},
-	{path = "src/settings.py"}
 ]
 
 [tool.poetry.dependencies]
