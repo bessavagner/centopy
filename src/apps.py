@@ -14,8 +14,6 @@ from centopy import FilesManager
 
 dictConfig(CONFIG_LOG)
 
-logger = logging.getLogger('client')
-report = logging.getLogger('report')
 
 class Files:
     def __init__(self, *args, **kwargs):
