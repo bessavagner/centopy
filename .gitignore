@@ -1,6 +1,8 @@
 # environments
 .env/
 .venv/
+.venv*
+.env*
 
 # dev
 .vscode/
