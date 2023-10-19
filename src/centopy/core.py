@@ -15,6 +15,7 @@ from typing import Type
 from .base import BaseFilesManager
 
 logger = logging.getLogger('standard')
+debugger = logging.getLogger('debug')
 
 class FilesManager(BaseFilesManager):
     """
@@ -639,12 +640,17 @@ class Archives:
             bool: True if the archive was created, False otherwise.
         """
         proceed = True
-        path = Path(wdir) / Path(f'{filename}.{self._extension}')
+        path = Path(f'{filename}.{self._extension}')
+        if filename.split('.')[-1] == self._extension:
+            path = Path(f'{filename}')
+            filename = path.with_suffix('')
+        if wdir != '':
+            path = Path(wdir) / path
         if path.exists():
-            proceed = confirm_func(filename, wdir)
+            proceed = confirm_func(str(filename), wdir)
         if proceed:
             archive = self._archive_handler(
-                filename, wdir, extension=self._extension
+                str(filename), wdir, extension=self._extension
             )
             archive.clean()
             self._file[filename] = archive
@@ -666,14 +672,18 @@ class Archives:
         Raises:
             FileNotFoundError: If the specified archive file doesn't exist.
         """
-
-        path = Path(wdir) / Path(f'{filename}.{self._extension}')
+        path = Path(f'{filename}.{self._extension}')
+        if filename.split('.')[-1] == self._extension:
+            path = Path(f'{filename}')
+            filename = path.with_suffix('')
+        if wdir != '':
+            path = Path(wdir) / path
 
         if not path.exists():
             raise FileNotFoundError
 
         self._file[filename] = self._archive_handler(
-            filename, wdir, extension=self._extension
+            str(filename), wdir, extension=self._extension
         )
 
         return self._file[filename]
