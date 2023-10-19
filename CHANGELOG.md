@@ -2,6 +2,19 @@
 
 <!--next-version-placeholder-->
 
+## v0.3.0 (19/10/2023)
+
+- (fix/wdir) fix: remove bug that caused file extension to be added again
+- fix: remove unnecessary logger setting (file)... fixed for good
+- update: package version
+- fix: remove unnecessary logger setting (file)
+- (fix/logging) update: package version
+- fix: remove unnecessary loggers
+- (update/python3.10-compatibility) update: version
+- update: add python3.10 compatibility
+- update: add .env310 to .gitignore
+- (fix/import-settings) fix: move settings to package
+
 ## v0.2.6 (26/08/2023)
 
 - Fix: move settings to package.
